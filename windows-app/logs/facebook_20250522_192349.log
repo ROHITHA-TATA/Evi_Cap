@@ -1,0 +1,31 @@
+2025-05-22 19:23:49,123 - ERROR - Login failed: Message: Unable to locate or obtain driver for chrome; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2025-05-22 19:23:53,996 - ERROR - Login failed: Message: Unable to locate or obtain driver for chrome; For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location
+
+2025-05-22 19:24:01,352 - INFO - Using local ChromeDriver from C:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 19:24:14,182 - INFO - No cookie consent popup found
+2025-05-22 19:24:56,082 - ERROR - Login verification failed: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF6C76AEFA5+77893]
+	GetHandleVerifier [0x00007FF6C76AF000+77984]
+	(No symbol) [0x00007FF6C74791BA]
+	(No symbol) [0x00007FF6C74CF16D]
+	(No symbol) [0x00007FF6C74CF41C]
+	(No symbol) [0x00007FF6C7522237]
+	(No symbol) [0x00007FF6C74F716F]
+	(No symbol) [0x00007FF6C751F07F]
+	(No symbol) [0x00007FF6C74F6F03]
+	(No symbol) [0x00007FF6C74C0328]
+	(No symbol) [0x00007FF6C74C1093]
+	GetHandleVerifier [0x00007FF6C7967B6D+2931725]
+	GetHandleVerifier [0x00007FF6C7962132+2908626]
+	GetHandleVerifier [0x00007FF6C79800F3+3031443]
+	GetHandleVerifier [0x00007FF6C76C91EA+184970]
+	GetHandleVerifier [0x00007FF6C76D086F+215311]
+	GetHandleVerifier [0x00007FF6C76B6EC4+110436]
+	GetHandleVerifier [0x00007FF6C76B7072+110866]
+	GetHandleVerifier [0x00007FF6C769D479+5401]
+	BaseThreadInitThunk [0x00007FF9EFD1259D+29]
+	RtlUserThreadStart [0x00007FF9F134AF58+40]
+
+2025-05-22 19:25:49,078 - INFO - Browser closed

@@ -1,0 +1,7 @@
+2025-05-22 18:24:19,366 - INFO - Using local ChromeDriver from C:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 18:24:20,586 - INFO - Navigating to https://www.reddit.com/user/GallowBoob
+2025-05-22 18:24:30,325 - INFO - Screenshot saved: screenshots/reddit/public_profile_GallowBoob_20250522_182429.png
+2025-05-22 18:24:30,325 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_GallowBoob_20250522_182429.png
+2025-05-22 18:24:36,616 - INFO - Screenshot saved: screenshots/reddit/public_posts_GallowBoob_20250522_182436.png
+2025-05-22 18:24:36,622 - INFO - Captured posts screenshot: screenshots/reddit/public_posts_GallowBoob_20250522_182436.png
+2025-05-22 18:24:36,624 - INFO - Extraction completed successfully for GallowBoob

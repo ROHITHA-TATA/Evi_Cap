@@ -34,7 +34,7 @@ class InstagramAutomation:
             level=logging.INFO,
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
-        
+
     def _setup_driver(self, headless=False):
         chrome_options = Options()
         if headless:
@@ -53,16 +53,33 @@ class InstagramAutomation:
         chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
-        # Use the manually downloaded ChromeDriver
-        driver_path = r"C:\Users\Dell\Megha\projs\social-media-evidence-tool\drivers\chromedriver.exe"
-        service = Service(driver_path)
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
-        
-        # Execute CDP commands to prevent detection
-        self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
-            "userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-        })
-        self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        # Try to use local ChromeDriver first
+        try:
+            driver_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "drivers", "chromedriver.exe")
+            if os.path.exists(driver_path):
+                logging.info(f"Using local ChromeDriver from {driver_path}")
+                service = Service(executable_path=driver_path)
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+                # Execute CDP commands to prevent detection
+                self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+                    "userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                })
+                self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+                return
+        except Exception as e:
+            logging.warning(f"Failed to use local ChromeDriver: {str(e)}")        # Fallback to WebDriver Manager
+        try:
+            logging.info("Attempting to use ChromeDriverManager")
+            service = Service(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+            # Execute CDP commands to prevent detection
+            self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {
+                "userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            })
+            self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        except Exception as e:
+            logging.error(f"Error setting up Chrome WebDriver: {str(e)}")
+            raise
         
     def login(self, username, password):
         """Login to Instagram with credentials"""
@@ -165,6 +182,15 @@ class InstagramAutomation:
                 
                 # Click login button
                 login_button.click()
+                # Dismiss 'Save Your Login Info' modal if present
+                try:
+                    save_not_now = WebDriverWait(self.driver, 5).until(
+                        EC.element_to_be_clickable((By.XPATH, "//button[contains(text(),'Not now') or contains(text(),'Not Now') ]"))
+                    )
+                    save_not_now.click()
+                    time.sleep(2)
+                except:
+                    pass
                 
                 # Wait for login to complete or error message
                 try:
@@ -336,90 +362,18 @@ class InstagramAutomation:
             return False
             
     def _search_and_navigate_to_profile(self, profile_id):
-        """Search for a profile and navigate to it"""
+        """Navigate directly to the user's profile URL instead of using search UI"""
         try:
-            # Wait for search box to be present using the specific XPath
-            try:
-                search_box = WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[1]/div/div/input"))
-                )
-            except:
-                # Fallback to other selectors if the specific XPath fails
-                search_box_selectors = [
-                    (By.XPATH, "//input[@placeholder='Search']"),
-                    (By.XPATH, "//input[@aria-label='Search input']"),
-                    (By.XPATH, "//div[@role='button' and contains(@class, 'search')]")
-                ]
-                
-                search_box = None
-                for selector in search_box_selectors:
-                    try:
-                        search_box = WebDriverWait(self.driver, 5).until(
-                            EC.presence_of_element_located(selector)
-                        )
-                        if search_box:
-                            break
-                    except:
-                        continue
-            
-            if not search_box:
-                raise Exception("Could not find search box")
-            
-            # Click search box if it's a button
-            if search_box.tag_name == 'div':
-                search_box.click()
-                time.sleep(1)
-                # Find the actual input field after clicking
-                search_box = WebDriverWait(self.driver, 5).until(
-                    EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[1]/div/div/input"))
-                )
-            
-            # Clear and type profile ID
-            search_box.clear()
-            for char in profile_id:
-                search_box.send_keys(char)
-                time.sleep(random.uniform(0.1, 0.3))
-            
-            time.sleep(2)  # Wait for search results
-            
-            # Find and click the first search result using the specific XPath
-            try:
-                # Use the specific XPath for the first search result
-                first_result = WebDriverWait(self.driver, 5).until(
-                    EC.element_to_be_clickable((By.XPATH, "/html/body/div[1]/div/div/div[2]/div/div/div[1]/div[1]/div[2]/div/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/a[1]/div[1]"))
-                )
-                first_result.click()
-            except:
-                # Fallback to other selectors if the specific XPath fails
-                account_selectors = [
-                    (By.XPATH, "//a[contains(@href, '/" + profile_id + "')]"),
-                    (By.XPATH, "//div[contains(@class, 'search-result')]//a[contains(@href, '/')]"),
-                    (By.XPATH, "//div[@role='button']//span[contains(text(), '" + profile_id + "')]/ancestor::a")
-                ]
-                
-                account_link = None
-                for selector in account_selectors:
-                    try:
-                        account_link = WebDriverWait(self.driver, 5).until(
-                            EC.element_to_be_clickable(selector)
-                        )
-                        if account_link:
-                            break
-                    except:
-                        continue
-                
-                if not account_link:
-                    raise Exception("Could not find account in search results")
-                
-                # Click the account link
-                account_link.click()
-            
-            time.sleep(3)  # Wait for profile to load
-            
+            url = f"https://www.instagram.com/{profile_id}/"
+            self.driver.get(url)
+            # Wait until profile header loads
+            WebDriverWait(self.driver, 10).until(
+                EC.presence_of_element_located((By.XPATH, "//header"))
+            )
+            time.sleep(2)
             return True
-            
         except Exception as e:
-            logging.error(f"Search and navigation failed: {str(e)}")
+            logging.error(f"Direct navigation failed: {str(e)}")
             return False
 
     def extract_authorized_data(self, data_type, target_profile="me"):
@@ -601,4 +555,4 @@ class InstagramAutomation:
             logging.info("Browser closed")
             
     def __del__(self):
-        self.close() 
+        self.close()

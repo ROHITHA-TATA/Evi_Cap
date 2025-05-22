@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QFormLayout, 
                              QPushButton, QComboBox, QLabel, QLineEdit, QMessageBox,
                              QGroupBox, QHBoxLayout, QRadioButton)
 from PyQt5.QtCore import Qt
@@ -23,6 +23,9 @@ class SocialMediaEvidenceTool(QMainWindow):
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
+        # Add margins and spacing for better layout
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(15)
         
         # Platform Selection Group
         platform_group = QGroupBox("Platform Selection")
@@ -48,27 +51,23 @@ class SocialMediaEvidenceTool(QMainWindow):
         
         # Input Group
         input_group = QGroupBox("Account Information")
-        input_layout = QVBoxLayout()
+        input_layout = QFormLayout()
         # Public Profile Inputs
         self.profile_id_label = QLabel("Profile ID/Username:")
         self.profile_id_input = QLineEdit()
-        input_layout.addWidget(self.profile_id_label)
-        input_layout.addWidget(self.profile_id_input)
+        input_layout.addRow(self.profile_id_label, self.profile_id_input)
         # Authorized Access Inputs
         self.username_label = QLabel("Username/Email:")
         self.username_input = QLineEdit()
         self.password_label = QLabel("Password:")
         self.password_input = QLineEdit()
-        self.password_input.setEchoMode(QLineEdit.Password)  # Different in PyQt5
+        self.password_input.setEchoMode(QLineEdit.Password)
         self.target_profile_label = QLabel("Target Profile ID/Username (default: me):")
         self.target_profile_input = QLineEdit()
         self.target_profile_input.setText("me")
-        input_layout.addWidget(self.username_label)
-        input_layout.addWidget(self.username_input)
-        input_layout.addWidget(self.password_label)
-        input_layout.addWidget(self.password_input)
-        input_layout.addWidget(self.target_profile_label)
-        input_layout.addWidget(self.target_profile_input)
+        input_layout.addRow(self.username_label, self.username_input)
+        input_layout.addRow(self.password_label, self.password_input)
+        input_layout.addRow(self.target_profile_label, self.target_profile_input)
         input_group.setLayout(input_layout)
         main_layout.addWidget(input_group)
         
@@ -104,6 +103,15 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.public_radio.toggled.connect(self.toggle_input_fields)
         self.authorized_radio.toggled.connect(self.toggle_input_fields)
         self.toggle_input_fields()
+        # Apply custom style sheet for a cleaner UI
+        self.setStyleSheet("""
+        QMainWindow { background-color: #f9f9f9; }
+        QGroupBox { font-weight: bold; border: 1px solid #cccccc; border-radius: 5px; margin-top: 10px; }
+        QGroupBox::title { subcontrol-origin: margin; subcontrol-position: top left; padding: 0 5px; }
+        QPushButton { background-color: #007ACC; color: white; border-radius: 5px; padding: 8px 16px; }
+        QPushButton:hover { background-color: #005EA6; }
+        QComboBox, QLineEdit { padding: 4px; border: 1px solid #999; border-radius: 3px; }
+        """)
 
     def toggle_input_fields(self):
         is_public = self.public_radio.isChecked()
@@ -192,10 +200,13 @@ class SocialMediaEvidenceTool(QMainWindow):
                         screenshot_path = self.facebook_automation.extract_authorized_data(data_type, target_profile)
                         if screenshot_path:
                             QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
-                        else:
-                            QMessageBox.warning(self, "Error", "Failed to extract data")
+                        else:                        QMessageBox.warning(self, "Error", "Failed to extract data")
                     else:
                         QMessageBox.warning(self, "Error", "Login failed")
+            
+            elif platform == "Twitter":
+                QMessageBox.information(self, "Info", "Twitter functionality is not yet implemented")
+                return
             
             elif platform == "Instagram":
                 if self.public_radio.isChecked():
