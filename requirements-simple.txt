@@ -1,0 +1,4 @@
+PyQt5==5.15.10
+selenium==4.18.1
+webdriver-manager==4.0.1
+Pillow==10.4.0

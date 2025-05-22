@@ -1,0 +1,74 @@
+2025-05-22 15:52:31,654 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 15:52:33,093 - INFO - Navigating to https://www.reddit.com/user/u/spez
+2025-05-22 15:52:41,305 - INFO - Screenshot saved: screenshots/reddit/public_profile_u/spez_20250522_155241.png
+2025-05-22 15:52:41,305 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_u/spez_20250522_155241.png
+2025-05-22 15:52:45,318 - ERROR - Error extracting public profile: Message: invalid session id: session deleted as the browser has closed the connection
+from disconnected: not connected to DevTools
+  (Session info: chrome=136.0.7103.114)
+Stacktrace:
+	GetHandleVerifier [0x00007FF69EEDEFA5+77893]
+	GetHandleVerifier [0x00007FF69EEDF000+77984]
+	(No symbol) [0x00007FF69ECA91BA]
+	(No symbol) [0x00007FF69EC94F15]
+	(No symbol) [0x00007FF69ECB9F04]
+	(No symbol) [0x00007FF69ED2EACF]
+	(No symbol) [0x00007FF69ED4E972]
+	(No symbol) [0x00007FF69ED26F03]
+	(No symbol) [0x00007FF69ECF0328]
+	(No symbol) [0x00007FF69ECF1093]
+	GetHandleVerifier [0x00007FF69F197B6D+2931725]
+	GetHandleVerifier [0x00007FF69F192132+2908626]
+	GetHandleVerifier [0x00007FF69F1B00F3+3031443]
+	GetHandleVerifier [0x00007FF69EEF91EA+184970]
+	GetHandleVerifier [0x00007FF69EF0086F+215311]
+	GetHandleVerifier [0x00007FF69EEE6EC4+110436]
+	GetHandleVerifier [0x00007FF69EEE7072+110866]
+	GetHandleVerifier [0x00007FF69EECD479+5401]
+	BaseThreadInitThunk [0x00007FF9EFD1259D+29]
+	RtlUserThreadStart [0x00007FF9F134AF58+40]
+
+2025-05-22 15:52:53,539 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 15:52:54,652 - INFO - Navigating to https://www.reddit.com/user/spez
+2025-05-22 15:53:02,954 - INFO - Screenshot saved: screenshots/reddit/public_profile_spez_20250522_155302.png
+2025-05-22 15:53:02,955 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_spez_20250522_155302.png
+2025-05-22 15:53:09,106 - INFO - Screenshot saved: screenshots/reddit/public_posts_spez_20250522_155308.png
+2025-05-22 15:53:09,106 - INFO - Captured posts screenshot: screenshots/reddit/public_posts_spez_20250522_155308.png
+2025-05-22 15:53:09,107 - INFO - Extraction completed successfully for spez
+2025-05-22 15:56:03,570 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 15:56:04,689 - INFO - Navigating to https://www.reddit.com/r/spez
+2025-05-22 15:56:12,658 - INFO - Screenshot saved: screenshots/reddit/subreddit_spez_20250522_155612.png
+2025-05-22 15:56:12,658 - INFO - Captured subreddit screenshot: screenshots/reddit/subreddit_spez_20250522_155612.png
+2025-05-22 15:56:18,894 - INFO - Screenshot saved: screenshots/reddit/subreddit_posts_spez_20250522_155618.png
+2025-05-22 15:56:18,894 - INFO - Captured posts screenshot: screenshots/reddit/subreddit_posts_spez_20250522_155618.png
+2025-05-22 15:56:18,894 - INFO - Extraction completed successfully for subreddit spez
+2025-05-22 15:56:24,883 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 15:56:26,005 - INFO - Navigating to https://www.reddit.com/r/spez
+2025-05-22 15:56:33,991 - INFO - Screenshot saved: screenshots/reddit/subreddit_spez_20250522_155633.png
+2025-05-22 15:56:33,992 - INFO - Captured subreddit screenshot: screenshots/reddit/subreddit_spez_20250522_155633.png
+2025-05-22 15:56:40,204 - INFO - Screenshot saved: screenshots/reddit/subreddit_posts_spez_20250522_155640.png
+2025-05-22 15:56:40,204 - INFO - Captured posts screenshot: screenshots/reddit/subreddit_posts_spez_20250522_155640.png
+2025-05-22 15:56:40,209 - INFO - Extraction completed successfully for subreddit spez
+2025-05-22 15:59:27,177 - INFO - ====== WebDriver manager ======
+2025-05-22 15:59:36,174 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-22 15:59:36,245 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-22 15:59:36,309 - INFO - Driver [C:\Users\jayav\.wdm\drivers\chromedriver\win64\136.0.7103.113\chromedriver-win32/THIRD_PARTY_NOTICES.chromedriver] found in cache
+2025-05-22 15:59:36,310 - ERROR - Error extracting public profile: [WinError 193] %1 is not a valid Win32 application
+2025-05-22 15:59:45,608 - INFO - ====== WebDriver manager ======
+2025-05-22 15:59:46,440 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-22 15:59:46,510 - INFO - Get LATEST chromedriver version for google-chrome
+2025-05-22 15:59:46,576 - INFO - Driver [C:\Users\jayav\.wdm\drivers\chromedriver\win64\136.0.7103.113\chromedriver-win32/THIRD_PARTY_NOTICES.chromedriver] found in cache
+2025-05-22 15:59:46,577 - ERROR - Error extracting public profile: [WinError 193] %1 is not a valid Win32 application
+2025-05-22 16:00:21,970 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 16:00:23,094 - INFO - Navigating to https://www.reddit.com/user/SrGrafo
+2025-05-22 16:00:32,099 - INFO - Screenshot saved: screenshots/reddit/public_profile_SrGrafo_20250522_160031.png
+2025-05-22 16:00:32,099 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_SrGrafo_20250522_160031.png
+2025-05-22 16:00:38,469 - INFO - Screenshot saved: screenshots/reddit/public_posts_SrGrafo_20250522_160038.png
+2025-05-22 16:00:38,469 - INFO - Captured posts screenshot: screenshots/reddit/public_posts_SrGrafo_20250522_160038.png
+2025-05-22 16:00:38,471 - INFO - Extraction completed successfully for SrGrafo
+2025-05-22 16:03:05,322 - INFO - Using local ChromeDriver from c:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-05-22 16:03:06,431 - INFO - Navigating to https://www.reddit.com/user/SrGrafo
+2025-05-22 16:03:16,048 - INFO - Screenshot saved: screenshots/reddit/public_profile_SrGrafo_20250522_160315.png
+2025-05-22 16:03:16,048 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_SrGrafo_20250522_160315.png
+2025-05-22 16:03:22,345 - INFO - Screenshot saved: screenshots/reddit/public_posts_SrGrafo_20250522_160322.png
+2025-05-22 16:03:22,345 - INFO - Captured posts screenshot: screenshots/reddit/public_posts_SrGrafo_20250522_160322.png
+2025-05-22 16:03:22,346 - INFO - Extraction completed successfully for SrGrafo

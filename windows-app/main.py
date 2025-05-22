@@ -1,10 +1,12 @@
 import sys
-from PySide6.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
-                              QPushButton, QComboBox, QLabel, QLineEdit, QMessageBox,
-                              QGroupBox, QHBoxLayout, QRadioButton)
-from PySide6.QtCore import Qt
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, 
+                             QPushButton, QComboBox, QLabel, QLineEdit, QMessageBox,
+                             QGroupBox, QHBoxLayout, QRadioButton)
+from PyQt5.QtCore import Qt
 from automation.facebook_automation import FacebookAutomation
 from automation.instagram_automation import InstagramAutomation
+from automation.reddit_automation import RedditAutomation
+from automation.mastodon_automation import MastodonAutomation
 import os
 
 class SocialMediaEvidenceTool(QMainWindow):
@@ -15,6 +17,8 @@ class SocialMediaEvidenceTool(QMainWindow):
         
         self.facebook_automation = None
         self.instagram_automation = None
+        self.reddit_automation = None
+        self.mastodon_automation = None
         
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -24,7 +28,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         platform_group = QGroupBox("Platform Selection")
         platform_layout = QVBoxLayout()
         self.platform_combo = QComboBox()
-        self.platform_combo.addItems(["Facebook", "Twitter", "Instagram", "Telegram", "WhatsApp", "Google"])
+        self.platform_combo.addItems(["Facebook", "Twitter", "Instagram", "Reddit", "Mastodon", "Telegram", "WhatsApp", "Google"])
         self.platform_combo.currentTextChanged.connect(self.on_platform_changed)
         platform_layout.addWidget(QLabel("Select Platform:"))
         platform_layout.addWidget(self.platform_combo)
@@ -55,7 +59,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.username_input = QLineEdit()
         self.password_label = QLabel("Password:")
         self.password_input = QLineEdit()
-        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_input.setEchoMode(QLineEdit.Password)  # Different in PyQt5
         self.target_profile_label = QLabel("Target Profile ID/Username (default: me):")
         self.target_profile_input = QLineEdit()
         self.target_profile_input.setText("me")
@@ -85,6 +89,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         data_layout.addWidget(self.data_combo)
         data_group.setLayout(data_layout)
         main_layout.addWidget(data_group)
+        
         # Buttons
         button_layout = QHBoxLayout()
         self.extract_button = QPushButton("Extract Data")
@@ -97,9 +102,11 @@ class SocialMediaEvidenceTool(QMainWindow):
         button_layout.addWidget(self.clear_button)
         main_layout.addLayout(button_layout)
         main_layout.addStretch()
+        
         self.public_radio.toggled.connect(self.toggle_input_fields)
         self.authorized_radio.toggled.connect(self.toggle_input_fields)
         self.toggle_input_fields()
+
     def toggle_input_fields(self):
         is_public = self.public_radio.isChecked()
         self.profile_id_label.setVisible(is_public)
@@ -110,6 +117,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.password_input.setVisible(not is_public)
         self.target_profile_label.setVisible(not is_public)
         self.target_profile_input.setVisible(not is_public)
+        
     def on_platform_changed(self, platform):
         self.data_combo.clear()
         if platform in ["Facebook", "Instagram"]:
@@ -129,6 +137,21 @@ class SocialMediaEvidenceTool(QMainWindow):
                 "Following",
                 "Followers",
                 "Account Info"
+            ])
+        elif platform == "Reddit":
+            self.data_combo.addItems([
+                "User Profile",
+                "User Posts",
+                "Subreddit",
+                "Comments"
+            ])
+        elif platform == "Mastodon":
+            self.data_combo.addItems([
+                "User Profile",
+                "User Posts",
+                "Hashtag",
+                "Following",
+                "Followers"
             ])
         elif platform == "WhatsApp":
             self.data_combo.addItems([
@@ -153,15 +176,18 @@ class SocialMediaEvidenceTool(QMainWindow):
                 "Calendar",
                 "Contacts"
             ])
+            
     def clear_inputs(self):
         self.profile_id_input.clear()
         self.username_input.clear()
         self.password_input.clear()
         self.target_profile_input.setText("me")
         self.data_combo.setCurrentIndex(0)
+        
     def extract_data(self):
         platform = self.platform_combo.currentText()
         data_type = self.data_combo.currentText()
+        
         try:
             if platform == "Facebook":
                 if self.public_radio.isChecked():
@@ -169,8 +195,10 @@ class SocialMediaEvidenceTool(QMainWindow):
                     if not profile_id:
                         QMessageBox.warning(self, "Error", "Please enter a Profile ID/Username")
                         return
+                    
                     if not self.facebook_automation:
                         self.facebook_automation = FacebookAutomation()
+                    
                     screenshot_path = self.facebook_automation.extract_public_profile(profile_id, data_type)
                     if screenshot_path:
                         QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
@@ -180,14 +208,18 @@ class SocialMediaEvidenceTool(QMainWindow):
                     username = self.username_input.text()
                     password = self.password_input.text()
                     target_profile = self.target_profile_input.text() or "me"
+                    
                     if not username or not password:
                         QMessageBox.warning(self, "Error", "Please enter both username and password")
                         return
+                    
                     if not target_profile:
                         QMessageBox.warning(self, "Error", "Please enter a Target Profile ID/Username")
                         return
+                    
                     if not self.facebook_automation:
                         self.facebook_automation = FacebookAutomation()
+                    
                     if self.facebook_automation.login(username, password):
                         screenshot_path = self.facebook_automation.extract_authorized_data(data_type, target_profile)
                         if screenshot_path:
@@ -196,6 +228,7 @@ class SocialMediaEvidenceTool(QMainWindow):
                             QMessageBox.warning(self, "Error", "Failed to extract data")
                     else:
                         QMessageBox.warning(self, "Error", "Login failed")
+            
             elif platform == "Instagram":
                 if self.public_radio.isChecked():
                     profile_id = self.profile_id_input.text()
@@ -229,21 +262,86 @@ class SocialMediaEvidenceTool(QMainWindow):
                             QMessageBox.warning(self, "Error", "Failed to extract data")
                     else:
                         QMessageBox.warning(self, "Error", "Login failed")
+            
+            elif platform == "Reddit":
+                if self.public_radio.isChecked():
+                    username = self.profile_id_input.text()
+                    if not username:
+                        QMessageBox.warning(self, "Error", "Please enter a Reddit Username")
+                        return
+                    
+                    if not self.reddit_automation:
+                        self.reddit_automation = RedditAutomation()
+                    
+                    data_type = self.data_combo.currentText()
+                    if data_type == "User Profile" or data_type == "User Posts":
+                        result = self.reddit_automation.extract_public_profile(username)
+                        if result:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
+                        else:
+                            QMessageBox.warning(self, "Error", "Failed to extract data from Reddit")
+                    elif data_type == "Subreddit":
+                        result = self.reddit_automation.extract_subreddit(username)
+                        if result:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSubreddit screenshot: {result['subreddit']}\nPosts screenshot: {result['posts']}")
+                        else:
+                            QMessageBox.warning(self, "Error", "Failed to extract data from Reddit")
+                    else:
+                        QMessageBox.warning(self, "Error", "This data type is not yet implemented for Reddit")
+                        return
+                else:
+                    QMessageBox.information(self, "Info", "Reddit only supports public profile extraction. Please select 'Public Profile' option.")
+                    return
+            
+            elif platform == "Mastodon":
+                if self.public_radio.isChecked():
+                    username = self.profile_id_input.text()
+                    if not username:
+                        QMessageBox.warning(self, "Error", "Please enter a Mastodon Username")
+                        return
+                    
+                    # Additional input for Mastodon instance
+                    instance = "mastodon.social"  # Default instance
+                    
+                    if not self.mastodon_automation:
+                        self.mastodon_automation = MastodonAutomation()
+                    
+                    data_type = self.data_combo.currentText()
+                    if data_type == "User Profile" or data_type == "User Posts":
+                        result = self.mastodon_automation.extract_public_profile(username, instance)
+                    elif data_type == "Hashtag":
+                        result = self.mastodon_automation.extract_hashtag(username, instance)
+                    else:
+                        QMessageBox.warning(self, "Error", "This data type is not yet implemented for Mastodon")
+                        return
+                    
+                    if result:
+                        QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
+                    else:
+                        QMessageBox.warning(self, "Error", "Failed to extract data from Mastodon")
+                else:
+                    QMessageBox.information(self, "Info", "Mastodon only supports public profile extraction. Please select 'Public Profile' option.")
+                    return
+                    
             else:
-                QMessageBox.information(self, "Info", f"Platform {platform} support coming soon!")
+                QMessageBox.information(self, "Info", f"{platform} functionality is not yet implemented")
+                
         except Exception as e:
             QMessageBox.critical(self, "Error", f"An error occurred: {str(e)}")
+
     def closeEvent(self, event):
         if self.facebook_automation:
             self.facebook_automation.close()
         if self.instagram_automation:
             self.instagram_automation.close()
         event.accept()
-def main():
+            
+if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = SocialMediaEvidenceTool()
     window.show()
-    sys.exit(app.exec())
-
-if __name__ == "__main__":
-    main()
+    # Handle both PyQt5 (exec_) and newer versions (exec)
+    try:
+        sys.exit(app.exec())
+    except AttributeError:
+        sys.exit(app.exec_())

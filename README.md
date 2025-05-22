@@ -4,8 +4,9 @@ A desktop application for automated extraction and documentation of social media
 
 ## Features
 
-- Support for multiple social media platforms (Facebook, Twitter, Instagram, etc.)
+- Support for multiple social media platforms (Facebook, Twitter, Instagram, Reddit, Mastodon, etc.)
 - Automated login and data extraction
+- Public profile extraction without authentication
 - Screenshot capture of posts, messages, friends lists, etc.
 - PDF report generation with metadata
 - User-friendly interface
