@@ -54,15 +54,25 @@ class MastodonAutomation:
         chrome_options.add_argument("--window-size=1920,1080")
         chrome_options.add_argument("--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
 
+        # Try to use local ChromeDriver first
         try:
-            # Try to use ChromeDriverManager for automatic driver installation
-            service = Service(ChromeDriverManager().install())
-        except:
-            # Fallback to using the manually downloaded ChromeDriver
-            driver_path = os.path.join(os.getcwd(), "drivers", "chromedriver.exe")
-            service = Service(driver_path)
+            driver_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "drivers", "chromedriver.exe")
+            if os.path.exists(driver_path):
+                logging.info(f"Using local ChromeDriver from {driver_path}")
+                service = Service(executable_path=driver_path)
+                self.driver = webdriver.Chrome(service=service, options=chrome_options)
+                return
+        except Exception as e:
+            logging.warning(f"Failed to use local ChromeDriver: {str(e)}")
         
-        self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        # Fallback to WebDriver Manager
+        try:
+            logging.info("Attempting to use ChromeDriverManager")
+            service = Service(ChromeDriverManager().install())
+            self.driver = webdriver.Chrome(service=service, options=chrome_options)
+        except Exception as e:
+            logging.error(f"Error setting up Chrome WebDriver: {str(e)}")
+            raise
         
         # Execute CDP commands to prevent detection
         self.driver.execute_cdp_cmd('Network.setUserAgentOverride', {

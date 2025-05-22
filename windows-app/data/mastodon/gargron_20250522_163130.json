@@ -1,0 +1,10 @@
+{
+    "username": "gargron",
+    "instance": "mastodon.social",
+    "extraction_time": "2025-05-22 16:31:30",
+    "url": "https://mastodon.social/@gargron",
+    "screenshots": [
+        "screenshots/mastodon/public_profile_gargron_20250522_163124.png",
+        "screenshots/mastodon/public_posts_gargron_20250522_163130.png"
+    ]
+}

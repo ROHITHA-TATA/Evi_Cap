@@ -28,7 +28,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         platform_group = QGroupBox("Platform Selection")
         platform_layout = QVBoxLayout()
         self.platform_combo = QComboBox()
-        self.platform_combo.addItems(["Facebook", "Twitter", "Instagram", "Reddit", "Mastodon", "Telegram", "WhatsApp", "Google"])
+        self.platform_combo.addItems(["Facebook", "Twitter", "Instagram", "Reddit", "Mastodon"])
         self.platform_combo.currentTextChanged.connect(self.on_platform_changed)
         platform_layout.addWidget(QLabel("Select Platform:"))
         platform_layout.addWidget(self.platform_combo)
@@ -81,8 +81,6 @@ class SocialMediaEvidenceTool(QMainWindow):
             "Messages",
             "Timeline",
             "Friends List",
-            "Following",
-            "Followers",
             "Account Info"
         ])
         data_layout.addWidget(QLabel("Select Data Type:"))
@@ -126,55 +124,25 @@ class SocialMediaEvidenceTool(QMainWindow):
                 "Messages",
                 "Timeline",
                 "Friends List",
-                "Following",
-                "Followers",
                 "Account Info"
             ])
         elif platform == "Twitter":
             self.data_combo.addItems([
                 "Tweets",
                 "Timeline",
-                "Following",
-                "Followers",
                 "Account Info"
             ])
         elif platform == "Reddit":
             self.data_combo.addItems([
                 "User Profile",
                 "User Posts",
-                "Subreddit",
-                "Comments"
+                "Subreddit"
             ])
         elif platform == "Mastodon":
             self.data_combo.addItems([
                 "User Profile",
                 "User Posts",
-                "Hashtag",
-                "Following",
-                "Followers"
-            ])
-        elif platform == "WhatsApp":
-            self.data_combo.addItems([
-                "Chats",
-                "Media",
-                "Contacts",
-                "Account Info"
-            ])
-        elif platform == "Telegram":
-            self.data_combo.addItems([
-                "Chats",
-                "Channels",
-                "Groups",
-                "Media",
-                "Contacts"
-            ])
-        elif platform == "Google":
-            self.data_combo.addItems([
-                "Gmail",
-                "Drive",
-                "Photos",
-                "Calendar",
-                "Contacts"
+                "Hashtag"
             ])
             
     def clear_inputs(self):
