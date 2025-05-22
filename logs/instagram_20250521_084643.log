@@ -1,0 +1,30 @@
+2025-05-21 08:46:55,680 - INFO - No cookie consent popup found
+2025-05-21 08:47:30,934 - ERROR - Login verification failed: Message: 
+Stacktrace:
+	GetHandleVerifier [0x00007FF61A84EFA5+77893]
+	GetHandleVerifier [0x00007FF61A84F000+77984]
+	(No symbol) [0x00007FF61A6191BA]
+	(No symbol) [0x00007FF61A66F16D]
+	(No symbol) [0x00007FF61A66F41C]
+	(No symbol) [0x00007FF61A6C2237]
+	(No symbol) [0x00007FF61A69716F]
+	(No symbol) [0x00007FF61A6BF07F]
+	(No symbol) [0x00007FF61A696F03]
+	(No symbol) [0x00007FF61A660328]
+	(No symbol) [0x00007FF61A661093]
+	GetHandleVerifier [0x00007FF61AB07B6D+2931725]
+	GetHandleVerifier [0x00007FF61AB02132+2908626]
+	GetHandleVerifier [0x00007FF61AB200F3+3031443]
+	GetHandleVerifier [0x00007FF61A8691EA+184970]
+	GetHandleVerifier [0x00007FF61A87086F+215311]
+	GetHandleVerifier [0x00007FF61A856EC4+110436]
+	GetHandleVerifier [0x00007FF61A857072+110866]
+	GetHandleVerifier [0x00007FF61A83D479+5401]
+	BaseThreadInitThunk [0x00007FF8EC7FE8D7+23]
+	RtlUserThreadStart [0x00007FF8EE21C5DC+44]
+
+2025-05-21 08:47:40,544 - INFO - Browser closed
+2025-05-21 08:47:44,602 - WARNING - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FE5CBF1A90>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/572e6c177cdd82dcf6a9c26099082459
+2025-05-21 08:47:48,652 - WARNING - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FE5CBF16D0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/572e6c177cdd82dcf6a9c26099082459
+2025-05-21 08:47:52,724 - WARNING - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x000001FE5CC683E0>: Failed to establish a new connection: [WinError 10061] No connection could be made because the target machine actively refused it')': /session/572e6c177cdd82dcf6a9c26099082459
+2025-05-21 08:48:00,957 - INFO - Browser closed

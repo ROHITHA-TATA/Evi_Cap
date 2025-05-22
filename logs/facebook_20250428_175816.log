@@ -1,0 +1,5 @@
+2025-04-28 17:58:16,989 - INFO - ====== WebDriver manager ======
+2025-04-28 17:58:20,053 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 17:59:45,788 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 18:01:10,315 - INFO - There is no [win64] chromedriver "135.0.7049.114" for browser google-chrome "135.0.7049" in cache
+2025-04-28 18:01:10,315 - INFO - Get LATEST chromedriver version for google-chrome

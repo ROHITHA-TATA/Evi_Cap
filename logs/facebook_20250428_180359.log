@@ -1,0 +1,12 @@
+2025-04-28 18:03:59,688 - INFO - ====== WebDriver manager ======
+2025-04-28 18:04:01,339 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 18:05:26,774 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 18:06:51,953 - INFO - There is no [win64] chromedriver "135.0.7049.114" for browser google-chrome "135.0.7049" in cache
+2025-04-28 18:06:51,953 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 18:09:41,633 - INFO - WebDriver version 135.0.7049.114 selected
+2025-04-28 18:09:41,639 - INFO - Modern chrome version https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/win32/chromedriver-win32.zip
+2025-04-28 18:09:41,639 - INFO - About to download new driver from https://storage.googleapis.com/chrome-for-testing-public/135.0.7049.114/win32/chromedriver-win32.zip
+2025-04-28 18:11:06,304 - INFO - Driver downloading response is 200
+2025-04-28 18:11:07,410 - INFO - Get LATEST chromedriver version for google-chrome
+2025-04-28 18:12:34,934 - INFO - Driver has been saved in cache [C:\Users\Dell\.wdm\drivers\chromedriver\win64\135.0.7049.114]
+2025-04-28 18:12:34,990 - ERROR - Public profile extraction failed: [WinError 193] %1 is not a valid Win32 application
