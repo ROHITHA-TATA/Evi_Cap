@@ -108,37 +108,41 @@ class RedditAutomation:
                     time.sleep(2)
             except Exception as e:
                 logging.warning(f"No consent dialog found or could not interact: {str(e)}")
-            
+                
             # Capture the profile page
             profile_screenshot = self._capture_screenshot(f"public_profile_{username}")
             logging.info(f"Captured profile screenshot: {profile_screenshot}")
+              # Extract posts (capture 4 post screenshots efficiently)
+            post_screenshots = self._scroll_page(4)  # Get exactly 4 post screenshots
+            logging.info(f"Captured {len(post_screenshots)} post screenshots")
             
-            # Extract posts (scroll down to capture more posts)
-            self._scroll_page(3)  # Scroll 3 times
-            posts_screenshot = self._capture_screenshot(f"public_posts_{username}")
-            logging.info(f"Captured posts screenshot: {posts_screenshot}")
+            # Use first post screenshot as the primary one for backward compatibility
+            primary_posts_screenshot = post_screenshots[0] if post_screenshots else None
             
             # Save metadata
             metadata = {
                 "username": username,
                 "extraction_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "url": url,
-                "screenshots": [
-                    profile_screenshot,
-                    posts_screenshot
-                ]
+                "screenshots": [profile_screenshot] + post_screenshots
             }
-            
             metadata_file = f"{self.data_dir}/{username}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
             with open(metadata_file, 'w') as f:
                 json.dump(metadata, f, indent=4)
             
             logging.info(f"Extraction completed successfully for {username}")
-            return {
+            result = {
                 "profile": profile_screenshot,
-                "posts": posts_screenshot,
+                "posts": primary_posts_screenshot,  # For backward compatibility
+                "posts_all": post_screenshots,      # All post screenshots
                 "metadata": metadata_file
             }
+            
+            # Add numbered posts for easier access
+            for i, screenshot in enumerate(post_screenshots):
+                result[f"posts_{i+1}"] = screenshot
+                
+            return result
             
         except Exception as e:
             logging.error(f"Error extracting public profile: {str(e)}")
@@ -174,25 +178,22 @@ class RedditAutomation:
                     time.sleep(2)
             except Exception as e:
                 logging.warning(f"No consent dialog found or could not interact: {str(e)}")
-            
+                
             # Capture the subreddit page
             subreddit_screenshot = self._capture_screenshot(f"subreddit_{subreddit_name}")
             logging.info(f"Captured subreddit screenshot: {subreddit_screenshot}")
+              # Scroll to get posts efficiently
+            post_screenshots = self._scroll_page(4)  # Get exactly 4 post screenshots
+            logging.info(f"Captured {len(post_screenshots)} post screenshots")
             
-            # Scroll to get more posts
-            self._scroll_page(3)  # Scroll 3 times
-            posts_screenshot = self._capture_screenshot(f"subreddit_posts_{subreddit_name}")
-            logging.info(f"Captured posts screenshot: {posts_screenshot}")
-            
-            # Save metadata
+            # Use first post screenshot as the primary one for backward compatibility
+            primary_posts_screenshot = post_screenshots[0] if post_screenshots else None
+              # Save metadata
             metadata = {
                 "subreddit": subreddit_name,
                 "extraction_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "url": url,
-                "screenshots": [
-                    subreddit_screenshot,
-                    posts_screenshot
-                ]
+                "screenshots": [subreddit_screenshot] + post_screenshots
             }
             
             metadata_file = f"{self.data_dir}/subreddit_{subreddit_name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -200,11 +201,18 @@ class RedditAutomation:
                 json.dump(metadata, f, indent=4)
             
             logging.info(f"Extraction completed successfully for subreddit {subreddit_name}")
-            return {
+            result = {
                 "subreddit": subreddit_screenshot,
-                "posts": posts_screenshot,
+                "posts": primary_posts_screenshot,  # For backward compatibility
+                "posts_all": post_screenshots,      # All post screenshots
                 "metadata": metadata_file
             }
+            
+            # Add numbered posts for easier access
+            for i, screenshot in enumerate(post_screenshots):
+                result[f"posts_{i+1}"] = screenshot
+                
+            return result
             
         except Exception as e:
             logging.error(f"Error extracting subreddit: {str(e)}")
@@ -219,9 +227,24 @@ class RedditAutomation:
         finally:
             if self.driver:
                 self.driver.quit()
-    
-    def _scroll_page(self, num_scrolls=3):
-        """Scroll down the page to load more content"""
-        for i in range(num_scrolls):
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    def _scroll_page(self, num_scrolls=4):
+        """Efficiently scroll and capture posts screenshots without redundancy"""
+        post_screenshots = []
+        
+        # Take initial screenshot of posts section
+        initial_screenshot = self._capture_screenshot(f"posts_section_1")
+        post_screenshots.append(initial_screenshot)
+        
+        # Scroll and take screenshots at strategic positions
+        for i in range(1, num_scrolls):
+            # Calculate scroll position to get different content
+            scroll_position = (i * 0.8) / num_scrolls  # 80% increments to avoid overlap
+            self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight * {scroll_position});")
             time.sleep(2)  # Wait for content to load
+            
+            scroll_screenshot = self._capture_screenshot(f"posts_section_{i+1}")
+            post_screenshots.append(scroll_screenshot)
+        
+        logging.info(f"Efficiently captured {len(post_screenshots)} unique post screenshots")
+        return post_screenshots
