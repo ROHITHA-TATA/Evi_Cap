@@ -1,12 +1,13 @@
 import sys
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout, QFormLayout, 
                              QPushButton, QComboBox, QLabel, QLineEdit, QMessageBox,
-                             QGroupBox, QHBoxLayout, QRadioButton)
+                             QGroupBox, QHBoxLayout, QRadioButton, QCheckBox)
 from PyQt5.QtCore import Qt
 from automation.facebook_automation import FacebookAutomation
 from automation.instagram_automation import InstagramAutomation
 from automation.reddit_automation import RedditAutomation
 from automation.mastodon_automation import MastodonAutomation
+from reports.report_generator import ReportGenerator
 import os
 
 class SocialMediaEvidenceTool(QMainWindow):
@@ -19,6 +20,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.instagram_automation = None
         self.reddit_automation = None
         self.mastodon_automation = None
+        self.report_generator = ReportGenerator()
         
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -87,6 +89,15 @@ class SocialMediaEvidenceTool(QMainWindow):
         data_group.setLayout(data_layout)
         main_layout.addWidget(data_group)
         
+        # Output Options Group
+        output_group = QGroupBox("Output Options")
+        output_layout = QVBoxLayout()
+        self.save_as_pdf_checkbox = QCheckBox("Save as PDF Report")
+        self.save_as_pdf_checkbox.setChecked(False)
+        output_layout.addWidget(self.save_as_pdf_checkbox)
+        output_group.setLayout(output_layout)
+        main_layout.addWidget(output_group)
+        
         # Buttons
         button_layout = QHBoxLayout()
         self.extract_button = QPushButton("Extract Data")
@@ -103,6 +114,7 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.public_radio.toggled.connect(self.toggle_input_fields)
         self.authorized_radio.toggled.connect(self.toggle_input_fields)
         self.toggle_input_fields()
+        
         # Apply custom style sheet for a cleaner UI
         self.setStyleSheet("""
         QMainWindow { background-color: #f9f9f9; }
@@ -160,6 +172,59 @@ class SocialMediaEvidenceTool(QMainWindow):
         self.target_profile_input.setText("me")
         self.data_combo.setCurrentIndex(0)
         
+    def _generate_pdf_if_requested(self, platform, username, data_type, screenshot_paths):
+        """Generate PDF report if the checkbox is selected"""
+        if self.save_as_pdf_checkbox.isChecked():
+            try:                # Ensure screenshot_paths is a list
+                if isinstance(screenshot_paths, str):
+                    screenshot_paths = [screenshot_paths]
+                elif isinstance(screenshot_paths, dict):
+                    # Extract all screenshots from the result dict
+                    paths = []
+                    
+                    # First, handle the profile screenshot (always want this first)
+                    if "profile" in screenshot_paths and isinstance(screenshot_paths["profile"], str):
+                        paths.append(screenshot_paths["profile"])
+                    
+                    # Next, check for posts_all which contains all post screenshots
+                    if "posts_all" in screenshot_paths and isinstance(screenshot_paths["posts_all"], list):
+                        paths.extend(screenshot_paths["posts_all"])
+                    
+                    # Next, check for numbered posts (posts_1, posts_2, etc.)
+                    for i in range(1, 10):  # Look for up to 10 numbered posts
+                        key = f"posts_{i}"
+                        if key in screenshot_paths and isinstance(screenshot_paths[key], str):
+                            paths.append(screenshot_paths[key])
+                    
+                    # Finally, add any other string values that might be screenshots
+                    for key, value in screenshot_paths.items():
+                        if isinstance(value, str) and key not in ["profile", "metadata"] and not key.startswith("posts_"):
+                            paths.append(value)
+                            
+                    screenshot_paths = paths
+                
+                # Filter out None values, ensure files exist, and only include image files
+                valid_screenshots = []
+                image_extensions = ['.png', '.jpg', '.jpeg', '.gif', '.bmp']
+                
+                for path in screenshot_paths:
+                    if path and os.path.exists(path):
+                        # Check if the file has an image extension
+                        _, ext = os.path.splitext(path.lower())
+                        if ext in image_extensions:
+                            valid_screenshots.append(path)
+                
+                if valid_screenshots:
+                    pdf_path = self.report_generator.generate_report(platform, username, data_type, valid_screenshots)
+                    return pdf_path
+                else:
+                    QMessageBox.warning(self, "PDF Warning", "No valid screenshot images found to include in PDF")
+                    return None
+            except Exception as e:
+                QMessageBox.warning(self, "PDF Error", f"Failed to generate PDF: {str(e)}")
+                return None
+        return None
+        
     def extract_data(self):
         platform = self.platform_combo.currentText()
         data_type = self.data_combo.currentText()
@@ -177,7 +242,13 @@ class SocialMediaEvidenceTool(QMainWindow):
                     
                     screenshot_path = self.facebook_automation.extract_public_profile(profile_id, data_type)
                     if screenshot_path:
-                        QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
+                        # Generate PDF if requested
+                        pdf_path = self._generate_pdf_if_requested(platform, profile_id, data_type, screenshot_path)
+                        
+                        if pdf_path:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nScreenshot: {screenshot_path}\nPDF Report: {pdf_path}")
+                        else:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
                     else:
                         QMessageBox.warning(self, "Error", "Failed to extract data")
                 else:
@@ -199,8 +270,15 @@ class SocialMediaEvidenceTool(QMainWindow):
                     if self.facebook_automation.login(username, password):
                         screenshot_path = self.facebook_automation.extract_authorized_data(data_type, target_profile)
                         if screenshot_path:
-                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
-                        else:                        QMessageBox.warning(self, "Error", "Failed to extract data")
+                            # Generate PDF if requested
+                            pdf_path = self._generate_pdf_if_requested(platform, target_profile, data_type, screenshot_path)
+                            
+                            if pdf_path:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nScreenshot: {screenshot_path}\nPDF Report: {pdf_path}")
+                            else:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
+                        else:
+                            QMessageBox.warning(self, "Error", "Failed to extract data")
                     else:
                         QMessageBox.warning(self, "Error", "Login failed")
             
@@ -214,29 +292,47 @@ class SocialMediaEvidenceTool(QMainWindow):
                     if not profile_id:
                         QMessageBox.warning(self, "Error", "Please enter a Profile ID/Username")
                         return
+                    
                     if not self.instagram_automation:
                         self.instagram_automation = InstagramAutomation()
+                    
                     screenshot_path = self.instagram_automation.extract_public_profile(profile_id, data_type)
                     if screenshot_path:
-                        QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
+                        # Generate PDF if requested
+                        pdf_path = self._generate_pdf_if_requested(platform, profile_id, data_type, screenshot_path)
+                        
+                        if pdf_path:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nScreenshot: {screenshot_path}\nPDF Report: {pdf_path}")
+                        else:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
                     else:
                         QMessageBox.warning(self, "Error", "Failed to extract data")
                 else:
                     username = self.username_input.text()
                     password = self.password_input.text()
                     target_profile = self.target_profile_input.text() or "me"
+                    
                     if not username or not password:
                         QMessageBox.warning(self, "Error", "Please enter both username and password")
                         return
+                    
                     if not target_profile:
                         QMessageBox.warning(self, "Error", "Please enter a Target Profile ID/Username")
                         return
+                    
                     if not self.instagram_automation:
                         self.instagram_automation = InstagramAutomation()
+                    
                     if self.instagram_automation.login(username, password):
                         screenshot_path = self.instagram_automation.extract_authorized_data(data_type, target_profile)
                         if screenshot_path:
-                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
+                            # Generate PDF if requested
+                            pdf_path = self._generate_pdf_if_requested(platform, target_profile, data_type, screenshot_path)
+                            
+                            if pdf_path:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nScreenshot: {screenshot_path}\nPDF Report: {pdf_path}")
+                            else:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nSaved to: {screenshot_path}")
                         else:
                             QMessageBox.warning(self, "Error", "Failed to extract data")
                     else:
@@ -256,13 +352,25 @@ class SocialMediaEvidenceTool(QMainWindow):
                     if data_type == "User Profile" or data_type == "User Posts":
                         result = self.reddit_automation.extract_public_profile(username)
                         if result:
-                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
+                            # Generate PDF if requested
+                            pdf_path = self._generate_pdf_if_requested(platform, username, data_type, result)
+                            
+                            if pdf_path:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}\nPDF Report: {pdf_path}")
+                            else:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
                         else:
                             QMessageBox.warning(self, "Error", "Failed to extract data from Reddit")
                     elif data_type == "Subreddit":
                         result = self.reddit_automation.extract_subreddit(username)
                         if result:
-                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nSubreddit screenshot: {result['subreddit']}\nPosts screenshot: {result['posts']}")
+                            # Generate PDF if requested
+                            pdf_path = self._generate_pdf_if_requested(platform, username, data_type, result)
+                            
+                            if pdf_path:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nSubreddit screenshot: {result['subreddit']}\nPosts screenshot: {result['posts']}\nPDF Report: {pdf_path}")
+                            else:
+                                QMessageBox.information(self, "Success", f"Data extracted successfully!\nSubreddit screenshot: {result['subreddit']}\nPosts screenshot: {result['posts']}")
                         else:
                             QMessageBox.warning(self, "Error", "Failed to extract data from Reddit")
                     else:
@@ -295,7 +403,13 @@ class SocialMediaEvidenceTool(QMainWindow):
                         return
                     
                     if result:
-                        QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
+                        # Generate PDF if requested
+                        pdf_path = self._generate_pdf_if_requested(platform, username, data_type, result)
+                        
+                        if pdf_path:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}\nPDF Report: {pdf_path}")
+                        else:
+                            QMessageBox.information(self, "Success", f"Data extracted successfully!\nProfile screenshot: {result['profile']}\nPosts screenshot: {result['posts']}")
                     else:
                         QMessageBox.warning(self, "Error", "Failed to extract data from Mastodon")
                 else:

@@ -104,8 +104,7 @@ class MastodonAutomation:
             
             # Wait for the page to load
             time.sleep(5)
-            
-            # Handle any cookie/consent dialogs
+              # Handle any cookie/consent dialogs
             try:
                 consent_buttons = self.driver.find_elements(By.XPATH, "//button[contains(text(), 'Accept') or contains(text(), 'I Accept') or contains(text(), 'Agree') or contains(text(), 'Cookie')]")
                 if consent_buttons:
@@ -117,22 +116,19 @@ class MastodonAutomation:
             # Capture the profile page
             profile_screenshot = self._capture_screenshot(f"public_profile_{username}")
             logging.info(f"Captured profile screenshot: {profile_screenshot}")
+              # Extract posts (capture 4 post screenshots efficiently)
+            post_screenshots = self._scroll_page(4)  # Get exactly 4 post screenshots
+            logging.info(f"Captured {len(post_screenshots)} post screenshots")
             
-            # Extract posts (scroll down to capture more posts)
-            self._scroll_page(3)  # Scroll 3 times
-            posts_screenshot = self._capture_screenshot(f"public_posts_{username}")
-            logging.info(f"Captured posts screenshot: {posts_screenshot}")
+            # Use first post screenshot as the primary one for backward compatibility
+            primary_posts_screenshot = post_screenshots[0] if post_screenshots else None
             
             # Save metadata
             metadata = {
                 "username": username,
                 "instance": instance,
                 "extraction_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                "url": url,
-                "screenshots": [
-                    profile_screenshot,
-                    posts_screenshot
-                ]
+                "url": url,                "screenshots": [profile_screenshot] + post_screenshots
             }
             
             metadata_file = f"{self.data_dir}/{username}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -140,11 +136,18 @@ class MastodonAutomation:
                 json.dump(metadata, f, indent=4)
             
             logging.info(f"Extraction completed successfully for {username}")
-            return {
+            result = {
                 "profile": profile_screenshot,
-                "posts": posts_screenshot,
+                "posts": primary_posts_screenshot,  # For backward compatibility
+                "posts_all": post_screenshots,      # All post screenshots
                 "metadata": metadata_file
             }
+            
+            # Add numbered posts for easier access
+            for i, screenshot in enumerate(post_screenshots):
+                result[f"posts_{i+1}"] = screenshot
+                
+            return result
             
         except Exception as e:
             logging.error(f"Error extracting public profile: {str(e)}")
@@ -176,8 +179,7 @@ class MastodonAutomation:
             
             # Wait for the page to load
             time.sleep(5)
-            
-            # Handle any cookie/consent dialogs
+              # Handle any cookie/consent dialogs
             try:
                 consent_buttons = self.driver.find_elements(By.XPATH, "//button[contains(text(), 'Accept') or contains(text(), 'I Accept') or contains(text(), 'Agree') or contains(text(), 'Cookie')]")
                 if consent_buttons:
@@ -185,15 +187,16 @@ class MastodonAutomation:
                     time.sleep(2)
             except Exception as e:
                 logging.warning(f"No consent dialog found or could not interact: {str(e)}")
-            
-            # Capture the hashtag page
+              # Capture the hashtag page
             hashtag_screenshot = self._capture_screenshot(f"hashtag_{hashtag}")
             logging.info(f"Captured hashtag screenshot: {hashtag_screenshot}")
             
-            # Scroll to get more posts
-            self._scroll_page(3)  # Scroll 3 times
-            posts_screenshot = self._capture_screenshot(f"hashtag_posts_{hashtag}")
-            logging.info(f"Captured posts screenshot: {posts_screenshot}")
+            # Scroll to get posts efficiently  
+            post_screenshots = self._scroll_page(4)  # Get exactly 4 post screenshots
+            logging.info(f"Captured {len(post_screenshots)} post screenshots")
+            
+            # Use first post screenshot as the primary one for backward compatibility
+            primary_posts_screenshot = post_screenshots[0] if post_screenshots else None
             
             # Save metadata
             metadata = {
@@ -201,10 +204,7 @@ class MastodonAutomation:
                 "instance": instance,
                 "extraction_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "url": url,
-                "screenshots": [
-                    hashtag_screenshot,
-                    posts_screenshot
-                ]
+                "screenshots": [hashtag_screenshot] + post_screenshots
             }
             
             metadata_file = f"{self.data_dir}/hashtag_{hashtag}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -212,11 +212,19 @@ class MastodonAutomation:
                 json.dump(metadata, f, indent=4)
             
             logging.info(f"Extraction completed successfully for hashtag {hashtag}")
-            return {
+            result = {
+                "profile": hashtag_screenshot,  # For compatibility with extract_public_profile
+                "posts": primary_posts_screenshot,  # For backward compatibility
+                "posts_all": post_screenshots,  # All post screenshots 
                 "hashtag": hashtag_screenshot,
-                "posts": posts_screenshot,
                 "metadata": metadata_file
             }
+            
+            # Add numbered posts for easier access
+            for i, screenshot in enumerate(post_screenshots):
+                result[f"posts_{i+1}"] = screenshot
+                
+            return result
             
         except Exception as e:
             logging.error(f"Error extracting hashtag: {str(e)}")
@@ -225,15 +233,30 @@ class MastodonAutomation:
                 if self.driver:
                     debug_screenshot = self._capture_screenshot(f"debug_error_hashtag_{hashtag}")
                     logging.info(f"Debug screenshot captured: {debug_screenshot}")
-            except:
+            except Exception:
                 pass
             return None
         finally:
             if self.driver:
                 self.driver.quit()
     
-    def _scroll_page(self, num_scrolls=3):
-        """Scroll down the page to load more content"""
-        for i in range(num_scrolls):
-            self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    def _scroll_page(self, num_scrolls=4):
+        """Efficiently scroll and capture posts screenshots without redundancy"""
+        post_screenshots = []
+        
+        # Take initial screenshot of posts section
+        initial_screenshot = self._capture_screenshot(f"posts_section_1")
+        post_screenshots.append(initial_screenshot)
+        
+        # Scroll and take screenshots at strategic positions
+        for i in range(1, num_scrolls):
+            # Calculate scroll position to get different content
+            scroll_position = (i * 0.8) / num_scrolls  # 80% increments to avoid overlap
+            self.driver.execute_script(f"window.scrollTo(0, document.body.scrollHeight * {scroll_position});")
             time.sleep(2)  # Wait for content to load
+            
+            scroll_screenshot = self._capture_screenshot(f"posts_section_{i+1}")
+            post_screenshots.append(scroll_screenshot)
+        
+        logging.info(f"Efficiently captured {len(post_screenshots)} unique post screenshots")        
+        return post_screenshots
