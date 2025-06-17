@@ -1,0 +1,11 @@
+2025-06-02 16:19:18,637 - INFO - Using local ChromeDriver from C:\Users\jayav\Desktop\jv PROJECTS\ForensicCapture\ForensicCapture\drivers\chromedriver.exe
+2025-06-02 16:19:21,096 - INFO - Navigating to https://www.reddit.com/user/spez
+2025-06-02 16:19:32,437 - INFO - Screenshot saved: screenshots/reddit/public_profile_spez_20250602_161932.png
+2025-06-02 16:19:32,438 - INFO - Captured profile screenshot: screenshots/reddit/public_profile_spez_20250602_161932.png
+2025-06-02 16:19:32,700 - INFO - Screenshot saved: screenshots/reddit/posts_section_1_20250602_161932.png
+2025-06-02 16:19:35,224 - INFO - Screenshot saved: screenshots/reddit/posts_section_2_20250602_161934.png
+2025-06-02 16:19:37,603 - INFO - Screenshot saved: screenshots/reddit/posts_section_3_20250602_161937.png
+2025-06-02 16:19:39,952 - INFO - Screenshot saved: screenshots/reddit/posts_section_4_20250602_161939.png
+2025-06-02 16:19:39,952 - INFO - Efficiently captured 4 unique post screenshots
+2025-06-02 16:19:39,952 - INFO - Captured 4 post screenshots
+2025-06-02 16:19:39,955 - INFO - Extraction completed successfully for spez
